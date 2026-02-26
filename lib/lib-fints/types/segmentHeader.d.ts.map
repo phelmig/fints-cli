@@ -1,0 +1,1 @@
+{"version":3,"file":"segmentHeader.d.ts","sourceRoot":"","sources":["../../src/segmentHeader.ts"],"names":[],"mappings":"AAEA,OAAO,EAAE,SAAS,EAAE,MAAM,2BAA2B,CAAC;AAEtD,MAAM,MAAM,aAAa,GAAG;IAC3B,KAAK,EAAE,MAAM,CAAC;IACd,KAAK,EAAE,MAAM,CAAC;IACd,OAAO,EAAE,MAAM,CAAC;IAChB,QAAQ,CAAC,EAAE,MAAM,CAAC;CAClB,CAAC;AAEF,qBAAa,kBAAmB,SAAQ,SAAS;;CAchD"}

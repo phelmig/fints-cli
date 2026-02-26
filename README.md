@@ -1,0 +1,70 @@
+# fints-cli
+
+CLI for German online banking via FinTS 3.0. Supports SEPA transfers, account listing, and statement retrieval.
+
+## Setup
+
+```bash
+npm install
+cp .env.example .env   # fill in your bank credentials
+npm run build
+```
+
+### Environment variables
+
+| Variable | Description |
+|---|---|
+| `FVB_BLZ` | Bank code (Bankleitzahl) |
+| `FVB_USER` | Online banking user ID |
+| `FVB_PIN` | Online banking PIN |
+| `FVB_URL` | FinTS/HBCI endpoint URL |
+| `FVB_PRODUCT_ID` | FinTS product registration ID |
+| `FINTS_DEBUG` | Set to `1` for verbose debug output (optional) |
+
+## Usage
+
+### List accounts and balances
+
+```bash
+npm start -- accounts
+```
+
+Outputs JSON array with account numbers, IBANs, and balances.
+
+### Get account statements
+
+```bash
+npm start -- statements [--account <iban>] [--from YYYY-MM-DD] [--to YYYY-MM-DD]
+```
+
+Options:
+- `--account` — filter by IBAN (default: first account)
+- `--from` / `--to` — date range
+
+Outputs JSON array of transactions.
+
+### SEPA credit transfer
+
+```bash
+npm start -- transfer --recipient "Max Mustermann" --iban DE89370400440532013000 --amount 12.50 [--bic COBADEFFXXX] [--purpose "Invoice 123"] [--source-iban DE...]
+```
+
+Options:
+- `--recipient` — recipient name (required)
+- `--iban` — recipient IBAN (required)
+- `--amount` — amount in EUR (required)
+- `--bic` — recipient BIC (optional, resolved by bank)
+- `--purpose` — payment reference (optional)
+- `--source-iban` — source account IBAN (default: first account)
+
+## TAN handling
+
+All commands that require a TAN will prompt interactively on stderr. Status messages go to stderr, data output goes to stdout — so you can pipe the JSON output safely.
+
+## Acknowledgements
+
+Built on [lib-fints](https://github.com/robocode13/lib-fints) by robocode13 — a TypeScript FinTS 3.0 client library.
+
+## License
+
+LGPL-2.1 — see [LICENSE](LICENSE).

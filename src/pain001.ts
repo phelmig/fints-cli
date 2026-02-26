@@ -1,0 +1,107 @@
+export interface TransferParams {
+  messageId: string;
+  debtorName: string;
+  debtorIBAN: string;
+  debtorBIC: string;
+  creditorName: string;
+  creditorIBAN: string;
+  creditorBIC?: string;
+  amount: string; // e.g. "12.50"
+  currency?: string;
+  purpose?: string;
+  endToEndId?: string;
+  executionDate?: string; // YYYY-MM-DD
+}
+
+function escapeXml(s: string): string {
+  return s
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&apos;');
+}
+
+export function generatePain001(params: TransferParams): string {
+  const now = new Date();
+  const creationDateTime = now.toISOString().replace(/\.\d{3}Z$/, '');
+  const msgId = params.messageId;
+  const pmtInfId = `PMT-${msgId}`;
+  const e2eId = params.endToEndId || 'NOTPROVIDED';
+  const currency = params.currency || 'EUR';
+  const execDate = params.executionDate || now.toISOString().slice(0, 10);
+
+  const creditorBicBlock = params.creditorBIC
+    ? `
+          <CdtrAgt>
+            <FinInstnId>
+              <BIC>${escapeXml(params.creditorBIC)}</BIC>
+            </FinInstnId>
+          </CdtrAgt>`
+    : '';
+
+  const purposeBlock = params.purpose
+    ? `
+          <RmtInf>
+            <Ustrd>${escapeXml(params.purpose)}</Ustrd>
+          </RmtInf>`
+    : '';
+
+  return `<?xml version="1.0" encoding="UTF-8"?>
+<Document xmlns="urn:iso:std:iso:20022:tech:xsd:pain.001.003.03" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="urn:iso:std:iso:20022:tech:xsd:pain.001.003.03 pain.001.003.03.xsd">
+  <CstmrCdtTrfInitn>
+    <GrpHdr>
+      <MsgId>${escapeXml(msgId)}</MsgId>
+      <CreDtTm>${creationDateTime}</CreDtTm>
+      <NbOfTxs>1</NbOfTxs>
+      <CtrlSum>${params.amount}</CtrlSum>
+      <InitgPty>
+        <Nm>${escapeXml(params.debtorName)}</Nm>
+      </InitgPty>
+    </GrpHdr>
+    <PmtInf>
+      <PmtInfId>${escapeXml(pmtInfId)}</PmtInfId>
+      <PmtMtd>TRF</PmtMtd>
+      <BtchBookg>false</BtchBookg>
+      <NbOfTxs>1</NbOfTxs>
+      <CtrlSum>${params.amount}</CtrlSum>
+      <PmtTpInf>
+        <SvcLvl>
+          <Cd>SEPA</Cd>
+        </SvcLvl>
+      </PmtTpInf>
+      <ReqdExctnDt>${execDate}</ReqdExctnDt>
+      <Dbtr>
+        <Nm>${escapeXml(params.debtorName)}</Nm>
+      </Dbtr>
+      <DbtrAcct>
+        <Id>
+          <IBAN>${escapeXml(params.debtorIBAN)}</IBAN>
+        </Id>
+      </DbtrAcct>
+      <DbtrAgt>
+        <FinInstnId>
+          <BIC>${escapeXml(params.debtorBIC)}</BIC>
+        </FinInstnId>
+      </DbtrAgt>
+      <ChrgBr>SLEV</ChrgBr>
+      <CdtTrfTxInf>
+        <PmtId>
+          <EndToEndId>${escapeXml(e2eId)}</EndToEndId>
+        </PmtId>
+        <Amt>
+          <InstdAmt Ccy="${escapeXml(currency)}">${params.amount}</InstdAmt>
+        </Amt>${creditorBicBlock}
+        <Cdtr>
+          <Nm>${escapeXml(params.creditorName)}</Nm>
+        </Cdtr>
+        <CdtrAcct>
+          <Id>
+            <IBAN>${escapeXml(params.creditorIBAN)}</IBAN>
+          </Id>
+        </CdtrAcct>${purposeBlock}
+      </CdtTrfTxInf>
+    </PmtInf>
+  </CstmrCdtTrfInitn>
+</Document>`;
+}

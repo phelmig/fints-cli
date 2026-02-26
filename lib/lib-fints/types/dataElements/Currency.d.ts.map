@@ -1,0 +1,1 @@
+{"version":3,"file":"Currency.d.ts","sourceRoot":"","sources":["../../../src/dataElements/Currency.ts"],"names":[],"mappings":"AAAA,OAAO,EAAE,YAAY,EAAE,MAAM,mBAAmB,CAAC;AAEjD,qBAAa,QAAS,SAAQ,YAAY;gBAC7B,IAAI,EAAE,MAAM,EAAE,QAAQ,SAAI,EAAE,QAAQ,SAAI,EAAE,UAAU,CAAC,EAAE,MAAM,EAAE,UAAU,CAAC,EAAE,MAAM;CAG9F"}

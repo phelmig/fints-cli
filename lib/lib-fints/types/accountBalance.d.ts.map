@@ -1,0 +1,1 @@
+{"version":3,"file":"accountBalance.d.ts","sourceRoot":"","sources":["../../src/accountBalance.ts"],"names":[],"mappings":"AAAA,MAAM,MAAM,cAAc,GAAG;IAC5B,IAAI,EAAE,IAAI,CAAC;IACX,QAAQ,EAAE,MAAM,CAAC;IACjB,OAAO,EAAE,MAAM,CAAC;IAChB,YAAY,CAAC,EAAE,MAAM,CAAC;IACtB,WAAW,CAAC,EAAE,MAAM,CAAC;IACrB,eAAe,CAAC,EAAE,MAAM,CAAC;CACzB,CAAC"}

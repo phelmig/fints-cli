@@ -1,0 +1,1 @@
+{"version":3,"file":"creditCardStatement.d.ts","sourceRoot":"","sources":["../../src/creditCardStatement.ts"],"names":[],"mappings":"AAAA,MAAM,MAAM,mBAAmB,GAAG;IAEjC,eAAe,EAAE,IAAI,CAAC;IAItB,SAAS,EAAE,IAAI,CAAC;IAEhB,QAAQ,EAAE,MAAM,CAAC;IACjB,MAAM,EAAE,MAAM,CAAC;IACf,OAAO,EAAE,MAAM,CAAC;IAChB,gBAAgB,EAAE,MAAM,CAAC;IACzB,cAAc,EAAE,MAAM,CAAC;IACvB,YAAY,EAAE,MAAM,CAAC;CACrB,CAAC"}

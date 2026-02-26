@@ -1,0 +1,18 @@
+{
+  "name": "lib-fints",
+  "type": "module",
+  "exports": {
+    ".": {
+      "import": {
+        "types": "./types/index.d.ts",
+        "default": "./index.js"
+      }
+    },
+    "./*": {
+      "import": {
+        "types": "./types/*",
+        "default": "./*"
+      }
+    }
+  }
+}
