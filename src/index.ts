@@ -55,6 +55,7 @@ program
   .requiredOption('--amount <amount>', 'Amount in EUR (e.g. 12.50)')
   .option('--purpose <text>', 'Payment purpose / reference')
   .option('--source-iban <iban>', 'Source account IBAN (default: first account)')
+  .option('--instant', 'Use SEPA Instant Payment (Echtzeitüberweisung)')
   .action(async (opts) => {
     const bank = getBankOptions();
     await executeTransfer({
@@ -65,6 +66,7 @@ program
       amount: opts.amount,
       purpose: opts.purpose,
       sourceIban: opts.sourceIban,
+      instant: opts.instant,
     });
   });
 

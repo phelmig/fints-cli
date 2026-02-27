@@ -1,25 +1,25 @@
 import { CustomerOrderInteraction } from '../../lib/lib-fints/interactions/customerInteraction.js';
 import type { FinTSConfig } from '../../lib/lib-fints/config.js';
 import type { Message } from '../../lib/lib-fints/message.js';
-import type { ClientResponse } from '../../lib/lib-fints/types/interactions/customerInteraction.js';
-import { HKCCS } from './segments/HKCCS.js';
-import { HICCS } from './segments/HICCS.js';
+import type { CreditTransferResponse } from './interaction.js';
+import { HKIPZ } from './segments/HKIPZ.js';
+import { HIIPZ } from './segments/HIIPZ.js';
 import { HKVPP } from './segments/HKVPP.js';
 import { extractVopFromResponse, executeVopFlow } from './vopFlow.js';
 
-export interface CreditTransferResponse extends ClientResponse {
-  jobReference?: string;
-}
-
 const VOP_DESCRIPTOR = 'urn:iso:std:iso:20022:tech:xsd:pain.002.001.10';
 
-export class CreditTransferInteraction extends CustomerOrderInteraction {
+export class InstantPaymentInteraction extends CustomerOrderInteraction {
   private accountNumber: string;
   private sepaDescriptor: string;
   private painXml: string;
 
-  constructor(accountNumber: string, sepaDescriptor: string, painXml: string) {
-    super(HKCCS.Id, HICCS.Id);
+  constructor(
+    accountNumber: string,
+    sepaDescriptor: string,
+    painXml: string,
+  ) {
+    super(HKIPZ.Id, HIIPZ.Id);
     this.accountNumber = accountNumber;
     this.sepaDescriptor = sepaDescriptor;
     this.painXml = painXml;
@@ -28,8 +28,8 @@ export class CreditTransferInteraction extends CustomerOrderInteraction {
   createSegments(config: FinTSConfig): any[] {
     const bankAccount = config.getBankAccount(this.accountNumber);
 
-    const hkccs = {
-      header: { segId: HKCCS.Id, segNr: 0, version: HKCCS.Version },
+    const hkipz = {
+      header: { segId: HKIPZ.Id, segNr: 0, version: HKIPZ.Version },
       account: {
         iban: bankAccount.iban,
         bic: bankAccount.bic,
@@ -46,7 +46,7 @@ export class CreditTransferInteraction extends CustomerOrderInteraction {
       supportedReports: [VOP_DESCRIPTOR],
     };
 
-    return [hkccs, hkvpp];
+    return [hkipz, hkvpp];
   }
 
   handleClientResponse(response: Message): any {
@@ -57,7 +57,6 @@ export class CreditTransferInteraction extends CustomerOrderInteraction {
       baseResponse._needsVop = true;
       baseResponse._hivpp = hivpp;
       baseResponse._scrollRef = scrollRef;
-      // Force success + requiresTan to pause dialog loop
       baseResponse.success = true;
       baseResponse.requiresTan = true;
       baseResponse.tanReference = '__vop_pending__';
@@ -82,11 +81,11 @@ export class CreditTransferInteraction extends CustomerOrderInteraction {
       initialHivpp,
       scrollRef,
       vopDescriptor: VOP_DESCRIPTOR,
-      orderSegId: HKCCS.Id,
+      orderSegId: HKIPZ.Id,
       createResubmissionSegment: () => {
         const bankAccount = config.getBankAccount(this.accountNumber);
         return {
-          header: { segId: HKCCS.Id, segNr: 0, version: HKCCS.Version },
+          header: { segId: HKIPZ.Id, segNr: 0, version: HKIPZ.Version },
           account: {
             iban: bankAccount.iban,
             bic: bankAccount.bic,
@@ -102,9 +101,9 @@ export class CreditTransferInteraction extends CustomerOrderInteraction {
   }
 
   handleResponse(response: Message, clientResponse: CreditTransferResponse): void {
-    const hiccs = response.findSegment(HICCS.Id);
-    if (hiccs) {
-      clientResponse.jobReference = (hiccs as any).jobReference;
+    const hiipz = response.findSegment(HIIPZ.Id);
+    if (hiipz) {
+      clientResponse.jobReference = (hiipz as any).jobReference;
     }
   }
 }

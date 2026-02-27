@@ -3,15 +3,15 @@ import { AlphaNumeric } from '../../../lib/lib-fints/dataElements/AlphaNumeric.j
 import { Binary } from '../../../lib/lib-fints/dataElements/Binary.js';
 import { InternationalAccountGroup } from '../../../lib/lib-fints/dataGroups/InternationalAccount.js';
 
-export class HKCCS extends SegmentDefinition {
-  static Id = 'HKCCS';
+export class HKIPZ extends SegmentDefinition {
+  static Id = 'HKIPZ';
   static Version = 1;
 
   constructor() {
-    super(HKCCS.Id);
+    super(HKIPZ.Id);
   }
 
-  version = HKCCS.Version;
+  version = HKIPZ.Version;
 
   elements = [
     new InternationalAccountGroup('account', 1, 1),

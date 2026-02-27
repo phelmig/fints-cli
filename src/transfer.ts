@@ -1,5 +1,5 @@
 import { connectAndSync, logError, promptTan, type BankOptions } from './connection.js';
-import { generatePain001 } from './pain001.js';
+import { generatePain001, generatePain001Instant } from './pain001.js';
 import { validateIBAN } from './iban.js';
 import type { CreditTransferResponse } from './fints-ext/interaction.js';
 
@@ -10,6 +10,7 @@ export interface TransferOptions extends BankOptions {
   amount: string;
   purpose?: string;
   sourceIban?: string;
+  instant?: boolean;
 }
 
 export async function executeTransfer(opts: TransferOptions): Promise<void> {
@@ -63,7 +64,7 @@ export async function executeTransfer(opts: TransferOptions): Promise<void> {
 
   // Build pain.001 XML
   const messageId = `MSG-${Date.now()}`;
-  const painXml = generatePain001({
+  const painParams = {
     messageId,
     debtorName: opts.user,
     debtorIBAN: sourceAccount.iban || opts.sourceIban!,
@@ -73,28 +74,46 @@ export async function executeTransfer(opts: TransferOptions): Promise<void> {
     creditorBIC: opts.bic,
     amount,
     purpose: opts.purpose,
-  });
+  };
+  const painXml = opts.instant
+    ? generatePain001Instant(painParams)
+    : generatePain001(painParams);
 
   // Initiate credit transfer
+  const transferType = opts.instant ? 'instant payment' : 'transfer';
   process.stderr.write(
-    `Initiating transfer of ${amount} EUR to ${opts.recipient}...\n`,
+    `Initiating ${transferType} of ${amount} EUR to ${opts.recipient}...\n`,
   );
 
   let transferResponse: CreditTransferResponse;
-  transferResponse = await client.initiateCreditTransfer(
-    sourceAccount.accountNumber,
-    painXml,
-  );
+  if (opts.instant) {
+    transferResponse = await client.initiateInstantPayment(
+      sourceAccount.accountNumber,
+      painXml,
+    );
+  } else {
+    transferResponse = await client.initiateCreditTransfer(
+      sourceAccount.accountNumber,
+      painXml,
+    );
+  }
 
   // Handle TAN if required
   if (transferResponse.requiresTan) {
     const tan = await promptTan(
       transferResponse.tanChallenge || 'Please approve the transfer in your TAN app',
     );
-    transferResponse = await client.initiateCreditTransferWithTan(
-      transferResponse.tanReference!,
-      tan,
-    );
+    if (opts.instant) {
+      transferResponse = await client.initiateInstantPaymentWithTan(
+        transferResponse.tanReference!,
+        tan,
+      );
+    } else {
+      transferResponse = await client.initiateCreditTransferWithTan(
+        transferResponse.tanReference!,
+        tan,
+      );
+    }
   }
 
   // Output result

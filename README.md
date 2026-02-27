@@ -46,7 +46,7 @@ Outputs JSON array of transactions.
 ### SEPA credit transfer
 
 ```bash
-npm start -- transfer --recipient "Max Mustermann" --iban DE89370400440532013000 --amount 12.50 [--bic COBADEFFXXX] [--purpose "Invoice 123"] [--source-iban DE...]
+npm start -- transfer --recipient "Max Mustermann" --iban DE89370400440532013000 --amount 12.50 [--bic COBADEFFXXX] [--purpose "Invoice 123"] [--source-iban DE...] [--instant]
 ```
 
 Options:
@@ -56,6 +56,9 @@ Options:
 - `--bic` — recipient BIC (optional, resolved by bank)
 - `--purpose` — payment reference (optional)
 - `--source-iban` — source account IBAN (default: first account)
+- `--instant` — use SEPA Instant Payment (Echtzeitüberweisung) via HKIPZ
+
+Both regular (HKCCS) and instant (HKIPZ) transfers support Verification of Payee (VoP/Namensabgleich). The VoP flow is handled automatically: the CLI polls for name verification and resubmits the payment once confirmed.
 
 ## TAN handling
 
