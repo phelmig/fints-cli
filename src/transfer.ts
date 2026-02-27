@@ -118,12 +118,13 @@ export async function executeTransfer(opts: TransferOptions): Promise<void> {
 
   // Output result
   if (transferResponse.success) {
-    const result = {
+    process.stdout.write(JSON.stringify({
       status: 'OK',
+      amount: `${amount} EUR`,
+      recipient: opts.recipient,
+      iban: painParams.creditorIBAN,
       jobReference: transferResponse.jobReference,
-      bankAnswers: transferResponse.bankAnswers,
-    };
-    process.stdout.write(JSON.stringify(result, null, 2) + '\n');
+    }, null, 2) + '\n');
   } else {
     logError('Transfer failed', {
       bankAnswers: transferResponse.bankAnswers,
