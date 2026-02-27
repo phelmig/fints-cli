@@ -1,10 +1,22 @@
 # fints-cli
 
+[![npm version](https://img.shields.io/npm/v/@phelmig/fints-cli.svg)](https://www.npmjs.com/package/@phelmig/fints-cli)
+
 CLI for German online banking via FinTS 3.0. Supports SEPA transfers, account listing, and statement retrieval.
 
-## Setup
+## Installation
 
 ```bash
+npm install -g @phelmig/fints-cli
+```
+
+Then create a `.env` file (or export the variables) with your bank credentials — see below.
+
+### From source
+
+```bash
+git clone https://github.com/phelmig/fints-cli.git
+cd fints-cli
 npm install
 cp .env.example .env   # fill in your bank credentials
 npm run build
@@ -26,7 +38,7 @@ npm run build
 ### List accounts and balances
 
 ```bash
-npm start -- accounts
+fints-cli accounts
 ```
 
 Outputs JSON array with account numbers, IBANs, and balances.
@@ -34,7 +46,7 @@ Outputs JSON array with account numbers, IBANs, and balances.
 ### Get account statements
 
 ```bash
-npm start -- statements [--account <iban>] [--from YYYY-MM-DD] [--to YYYY-MM-DD]
+fints-cli statements [--account <iban>] [--from YYYY-MM-DD] [--to YYYY-MM-DD]
 ```
 
 Options:
@@ -46,7 +58,7 @@ Outputs JSON array of transactions.
 ### SEPA credit transfer
 
 ```bash
-npm start -- transfer --recipient "Max Mustermann" --iban DE89370400440532013000 --amount 12.50 [--bic COBADEFFXXX] [--purpose "Invoice 123"] [--source-iban DE...] [--instant]
+fints-cli transfer --recipient "Max Mustermann" --iban DE89370400440532013000 --amount 12.50 [--bic COBADEFFXXX] [--purpose "Invoice 123"] [--source-iban DE...] [--instant]
 ```
 
 Options:
