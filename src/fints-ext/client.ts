@@ -37,7 +37,7 @@ export class ExtendedFinTSClient extends FinTSClient {
   async initiateCreditTransfer(
     accountNumber: string,
     painXml: string,
-    sepaDescriptor: string = 'urn:iso:std:iso:20022:tech:xsd:pain.001.003.03',
+    sepaDescriptor: string = 'sepade:xsd:pain.001.001.09.xsd',
   ): Promise<CreditTransferResponse> {
     const interaction = new CreditTransferInteraction(accountNumber, sepaDescriptor, painXml);
     const response = (await this.startCustomerOrderInteraction(interaction)) as CreditTransferResponse;

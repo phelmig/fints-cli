@@ -132,16 +132,32 @@ export function generatePain001(params: TransferParams): string {
   const pmtInfId = `PMT-${msgId}`;
   const e2eId = params.endToEndId || 'NOTPROVIDED';
   const currency = params.currency || 'EUR';
-  const execDate = params.executionDate || now.toISOString().slice(0, 10);
+  const execDate = params.executionDate || '1999-01-01';
 
   const creditorBicBlock = params.creditorBIC
     ? `
           <CdtrAgt>
             <FinInstnId>
-              <BIC>${escapeXml(params.creditorBIC)}</BIC>
+              <BICFI>${escapeXml(params.creditorBIC)}</BICFI>
             </FinInstnId>
           </CdtrAgt>`
     : '';
+
+  const debtorBicBlock = params.debtorBIC
+    ? `
+      <DbtrAgt>
+        <FinInstnId>
+          <BICFI>${escapeXml(params.debtorBIC)}</BICFI>
+        </FinInstnId>
+      </DbtrAgt>`
+    : `
+      <DbtrAgt>
+        <FinInstnId>
+          <Othr>
+            <Id>NOTPROVIDED</Id>
+          </Othr>
+        </FinInstnId>
+      </DbtrAgt>`;
 
   const purposeBlock = params.purpose
     ? `
@@ -151,7 +167,7 @@ export function generatePain001(params: TransferParams): string {
     : '';
 
   return `<?xml version="1.0" encoding="UTF-8"?>
-<Document xmlns="urn:iso:std:iso:20022:tech:xsd:pain.001.003.03" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="urn:iso:std:iso:20022:tech:xsd:pain.001.003.03 pain.001.003.03.xsd">
+<Document xmlns="urn:iso:std:iso:20022:tech:xsd:pain.001.001.09" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="urn:iso:std:iso:20022:tech:xsd:pain.001.001.09 pain.001.001.09.xsd">
   <CstmrCdtTrfInitn>
     <GrpHdr>
       <MsgId>${escapeXml(msgId)}</MsgId>
@@ -173,7 +189,9 @@ export function generatePain001(params: TransferParams): string {
           <Cd>SEPA</Cd>
         </SvcLvl>
       </PmtTpInf>
-      <ReqdExctnDt>${execDate}</ReqdExctnDt>
+      <ReqdExctnDt>
+        <Dt>${execDate}</Dt>
+      </ReqdExctnDt>
       <Dbtr>
         <Nm>${escapeXml(params.debtorName)}</Nm>
       </Dbtr>
@@ -181,12 +199,7 @@ export function generatePain001(params: TransferParams): string {
         <Id>
           <IBAN>${escapeXml(params.debtorIBAN)}</IBAN>
         </Id>
-      </DbtrAcct>
-      <DbtrAgt>
-        <FinInstnId>
-          <BIC>${escapeXml(params.debtorBIC)}</BIC>
-        </FinInstnId>
-      </DbtrAgt>
+      </DbtrAcct>${debtorBicBlock}
       <ChrgBr>SLEV</ChrgBr>
       <CdtTrfTxInf>
         <PmtId>
