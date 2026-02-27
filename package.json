@@ -4,20 +4,36 @@
   "description": "CLI for SEPA credit transfers via FinTS 3.0",
   "main": "dist/src/index.js",
   "type": "module",
+  "bin": {
+    "fints-cli": "dist/src/index.js"
+  },
+  "files": [
+    "dist/"
+  ],
   "scripts": {
     "build": "tsc",
-    "start": "node dist/src/index.js"
+    "start": "node dist/src/index.js",
+    "prepublishOnly": "npm run build"
   },
-  "keywords": [],
-  "author": "",
+  "keywords": [
+    "fints",
+    "sepa",
+    "banking",
+    "cli"
+  ],
+  "author": "Patrick Helmig <patrick@omnifact.ai>",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/phelmig/fints-cli.git"
+  },
   "license": "LGPL-2.1-only",
   "dependencies": {
     "commander": "^14.0.3",
     "dotenv": "^17.3.1",
-    "fast-xml-parser": "^5.4.1",
-    "typescript": "^5.9.3"
+    "fast-xml-parser": "^5.4.1"
   },
   "devDependencies": {
-    "@types/node": "^25.3.1"
+    "@types/node": "^25.3.1",
+    "typescript": "^5.9.3"
   }
 }
