@@ -67,7 +67,7 @@ export async function executeVopFlow(params: VopFlowParams): Promise<any> {
   const maxPolls = 15;
   for (let i = 0; !vopId && i < maxPolls; i++) {
     await sleep(waitSeconds * 1000);
-    process.stderr.write(`VoP check (${i + 1}/${maxPolls})...\n`);
+    if (config.debugEnabled) process.stderr.write(`VoP check (${i + 1}/${maxPolls})...\n`);
 
     dialog.lastMessageNumber++;
     const msg = new CustomerMessage(dialog.dialogId, dialog.lastMessageNumber);
@@ -111,7 +111,7 @@ export async function executeVopFlow(params: VopFlowParams): Promise<any> {
 
     if (hivpp?.vopId) {
       vopId = hivpp.vopId;
-      process.stderr.write('VoP verified.\n');
+      if (config.debugEnabled) process.stderr.write('VoP verified.\n');
     } else {
       if (hivpp?.pollingId) pollingId = hivpp.pollingId;
       if (hivpp?.waitForSeconds) waitSeconds = hivpp.waitForSeconds;
@@ -130,7 +130,7 @@ export async function executeVopFlow(params: VopFlowParams): Promise<any> {
   }
 
   // Resubmit payment + HKVPA with vopId
-  process.stderr.write('Confirming payment with VoP...\n');
+  if (config.debugEnabled) process.stderr.write('Confirming payment with VoP...\n');
   dialog.lastMessageNumber++;
   const confirmMsg = new CustomerMessage(dialog.dialogId, dialog.lastMessageNumber);
   if (config.userId && config.pin) {
