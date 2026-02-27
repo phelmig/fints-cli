@@ -10,7 +10,13 @@ CLI for German online banking via FinTS 3.0. Supports SEPA transfers, account li
 npm install -g @phelmig/fints-cli
 ```
 
-Then create a `.env` file (or export the variables) with your bank credentials — see below.
+Then run the interactive setup:
+
+```bash
+fints-cli init
+```
+
+This creates `~/.config/fints-cli/config.env` with your bank credentials. You can also set environment variables directly — they override config file values.
 
 ### From source
 
@@ -22,7 +28,9 @@ cp .env.example .env   # fill in your bank credentials
 npm run build
 ```
 
-### Environment variables
+### Configuration
+
+`fints-cli init` writes to `~/.config/fints-cli/config.env` (or `$XDG_CONFIG_HOME/fints-cli/config.env`). The file uses standard `KEY=value` format. Environment variables always take precedence over the config file.
 
 | Variable | Description |
 |---|---|

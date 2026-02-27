@@ -1,18 +1,20 @@
 #!/usr/bin/env node
 
-import 'dotenv/config';
 import { Command } from 'commander';
 import { executeTransfer } from './transfer.js';
 import { listAccounts } from './accounts.js';
 import { getStatements } from './statements.js';
 import { formatError, type BankOptions } from './connection.js';
+import { loadConfig, initConfig } from './config.js';
+
+loadConfig();
 
 const program = new Command();
 
 program
   .name('fints-cli')
   .description('FinTS 3.0 banking CLI')
-  .version('1.0.0');
+  .version('1.0.1');
 
 function getBankOptions(): BankOptions {
   const blz = process.env.FVB_BLZ;
@@ -31,7 +33,7 @@ function getBankOptions(): BankOptions {
   if (missing.length > 0) {
     process.stderr.write(
       JSON.stringify({
-        error: `Missing environment variables: ${missing.join(', ')}`,
+        error: `Missing environment variables: ${missing.join(', ')}. Run "fints-cli init" to set up your config.`,
       }) + '\n',
     );
     process.exit(1);
@@ -92,6 +94,13 @@ program
       from: opts.from,
       to: opts.to,
     });
+  });
+
+program
+  .command('init')
+  .description('Interactive setup — creates ~/.config/fints-cli/config.env')
+  .action(async () => {
+    await initConfig();
   });
 
 program.parseAsync().catch(handleError);
