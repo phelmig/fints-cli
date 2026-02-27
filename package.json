@@ -1,5 +1,5 @@
 {
-  "name": "fints-cli",
+  "name": "@phelmig/fints-cli",
   "version": "1.0.0",
   "description": "CLI for SEPA credit transfers via FinTS 3.0",
   "main": "dist/src/index.js",
