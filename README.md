@@ -16,7 +16,7 @@ Then run the interactive setup:
 fints-cli init
 ```
 
-This creates `~/.config/fints-cli/config.env` with your bank credentials. You can also set environment variables directly — they override config file values.
+This creates `~/.config/fints-cli/config.env` with your bank credentials. On first run, a config template with default values is created automatically — edit it or run `fints-cli init` for interactive setup. Environment variables always override config file values.
 
 ### From source
 

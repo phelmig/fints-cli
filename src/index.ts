@@ -14,7 +14,7 @@ const program = new Command();
 program
   .name('fints-cli')
   .description('FinTS 3.0 banking CLI')
-  .version('1.0.1');
+  .version('1.0.2');
 
 function getBankOptions(): BankOptions {
   const blz = process.env.FVB_BLZ;

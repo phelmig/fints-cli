@@ -13,7 +13,21 @@ export function loadConfig(): void {
   const path = getConfigPath();
   if (existsSync(path)) {
     dotenv.config({ path });
+  } else {
+    seedConfig();
   }
+}
+
+function seedConfig(): void {
+  const configPath = getConfigPath();
+  const configDir = join(configPath, '..');
+  mkdirSync(configDir, { recursive: true, mode: 0o700 });
+  const content = CONFIG_KEYS.map((entry) => {
+    const def = 'default' in entry ? entry.default : '';
+    return `${entry.key}=${def}`;
+  }).join('\n') + '\n';
+  writeFileSync(configPath, content, { mode: 0o600 });
+  process.stderr.write(`Created config template at ${configPath}\nEdit it or run "fints-cli init" to configure.\n`);
 }
 
 const CONFIG_KEYS = [
