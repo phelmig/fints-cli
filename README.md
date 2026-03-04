@@ -2,7 +2,7 @@
 
 [![npm version](https://img.shields.io/npm/v/@phelmig/fints-cli.svg)](https://www.npmjs.com/package/@phelmig/fints-cli)
 
-CLI for German online banking via FinTS 3.0. Supports SEPA transfers, account listing, and statement retrieval.
+CLI for German online banking via FinTS 3.0. Supports SEPA transfers, account listing, and statement retrieval — including credit card accounts.
 
 ## Installation
 
@@ -49,17 +49,19 @@ npm run build
 fints-cli accounts
 ```
 
-Outputs JSON array with account numbers, IBANs, and balances.
+Outputs JSON array with account numbers, IBANs, types, and balances. Credit card accounts are listed alongside regular checking accounts.
 
 ### Get account statements
 
 ```bash
-fints-cli statements [--account <iban>] [--from YYYY-MM-DD] [--to YYYY-MM-DD]
+fints-cli statements [--account <iban-or-number>] [--from YYYY-MM-DD] [--to YYYY-MM-DD]
 ```
 
 Options:
-- `--account` — filter by IBAN (default: first account)
+- `--account` — filter by IBAN or account number (default: first account)
 - `--from` / `--to` — date range
+
+Works for both regular accounts (via HKCAZ/HKKAZ) and credit card accounts. Credit card accounts are detected automatically based on the account type reported by the bank.
 
 Outputs JSON array of transactions.
 

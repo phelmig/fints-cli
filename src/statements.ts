@@ -9,13 +9,15 @@ export interface StatementsOptions extends BankOptions {
 export async function getStatements(opts: StatementsOptions): Promise<void> {
   const { client, accounts } = await connectAndSync(opts);
 
-  // Find account by IBAN or use first
+  // Find account by IBAN or account number, or use first
   let account;
   if (opts.account) {
-    const ibanClean = opts.account.replace(/\s/g, '').toUpperCase();
-    account = accounts.find((a: any) => a.iban === ibanClean);
+    const needle = opts.account.replace(/\s/g, '').toUpperCase();
+    account = accounts.find(
+      (a: any) => a.iban === needle || a.accountNumber === needle,
+    );
     if (!account) {
-      logError(`Account with IBAN ${ibanClean} not found`, {
+      logError(`Account ${needle} not found`, {
         availableAccounts: accounts.map((a: any) => ({
           accountNumber: a.accountNumber,
           iban: a.iban,
@@ -27,47 +29,87 @@ export async function getStatements(opts: StatementsOptions): Promise<void> {
     account = accounts[0];
   }
 
-  process.stderr.write(
-    `Fetching statements for ${account.iban || account.accountNumber}...\n`,
-  );
+  const isCreditCard = client.canGetCreditCardStatements(account.accountNumber);
+  const isRegular = client.canGetAccountStatements(account.accountNumber);
+  // Prefer DKKKU for credit card accounts even if HKCAZ/HKKAZ is also advertised
+  const useCreditCardPath = isCreditCard && account.accountType === 'CreditCardAccount';
 
-  if (!client.canGetAccountStatements(account.accountNumber)) {
+  if (!isRegular && !isCreditCard) {
     logError('Account statements not supported for this account');
     process.exit(1);
   }
 
+  process.stderr.write(
+    `Fetching ${useCreditCardPath ? 'credit card ' : ''}statements for ${account.iban || account.accountNumber}...\n`,
+  );
+
   const from = opts.from ? new Date(opts.from) : undefined;
   const to = opts.to ? new Date(opts.to) : undefined;
 
-  let response = await client.getAccountStatements(account.accountNumber, from, to);
+  if (useCreditCardPath) {
+    // Credit card account — use DKKKU/DIKKU
+    let response = await client.getCreditCardStatements(account.accountNumber, from);
 
-  if (response.requiresTan) {
-    const tan = await promptTan(
-      response.tanChallenge || 'Please approve in your TAN app',
-    );
-    response = await client.getAccountStatementsWithTan(
-      response.tanReference!,
-      tan,
-    );
-  }
+    if (response.requiresTan) {
+      const tan = await promptTan(
+        response.tanChallenge || 'Please approve in your TAN app',
+      );
+      response = await client.getCreditCardStatementsWithTan(
+        response.tanReference!,
+        tan,
+      );
+    }
 
-  if (!response.success) {
-    logError('Failed to fetch statements', {
-      bankAnswers: response.bankAnswers,
-    });
-    process.exit(1);
-  }
+    if (!response.success) {
+      logError('Failed to fetch credit card statements', {
+        bankAnswers: response.bankAnswers,
+      });
+      process.exit(1);
+    }
 
-  const transactions = (response.statements ?? []).flatMap((stmt: any) =>
-    (stmt.transactions ?? []).map((tx: any) => ({
-      date: tx.valueDate || tx.bookingDate || null,
+    const transactions = (response.statements ?? []).map((tx: any) => ({
+      date: tx.valueDate || tx.transactionDate || null,
       amount: tx.amount || null,
-      remoteName: tx.remoteName || null,
+      currency: tx.currency || null,
       purpose: tx.purpose || null,
-      remoteIban: tx.remoteIban || null,
-      bookingText: tx.bookingText || null,
-    })),
-  );
+      originalAmount: tx.originalAmount || null,
+      originalCurrency: tx.originalCurrency || null,
+      exchangeRate: tx.exchangeRate !== 1 ? tx.exchangeRate : undefined,
+    }));
 
-  process.stdout.write(JSON.stringify(transactions, null, 2) + '\n');
+    process.stdout.write(JSON.stringify(transactions, null, 2) + '\n');
+  } else {
+    // Regular account — use HKKAZ/HKCAZ
+    let response = await client.getAccountStatements(account.accountNumber, from, to);
+
+    if (response.requiresTan) {
+      const tan = await promptTan(
+        response.tanChallenge || 'Please approve in your TAN app',
+      );
+      response = await client.getAccountStatementsWithTan(
+        response.tanReference!,
+        tan,
+      );
+    }
+
+    if (!response.success) {
+      logError('Failed to fetch statements', {
+        bankAnswers: response.bankAnswers,
+      });
+      process.exit(1);
+    }
+
+    const transactions = (response.statements ?? []).flatMap((stmt: any) =>
+      (stmt.transactions ?? []).map((tx: any) => ({
+        date: tx.valueDate || tx.bookingDate || null,
+        amount: tx.amount || null,
+        remoteName: tx.remoteName || null,
+        purpose: tx.purpose || null,
+        remoteIban: tx.remoteIban || null,
+        bookingText: tx.bookingText || null,
+      })),
+    );
+
+    process.stdout.write(JSON.stringify(transactions, null, 2) + '\n');
+  }
 }

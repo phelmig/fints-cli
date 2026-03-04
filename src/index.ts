@@ -14,7 +14,7 @@ const program = new Command();
 program
   .name('fints-cli')
   .description('FinTS 3.0 banking CLI')
-  .version('1.0.2');
+  .version('1.1.0');
 
 function getBankOptions(): BankOptions {
   const blz = process.env.FVB_BLZ;
@@ -83,7 +83,7 @@ program
 program
   .command('statements')
   .description('Get account statements / transactions')
-  .option('--account <iban>', 'Account IBAN (default: first account)')
+  .option('--account <iban-or-number>', 'Account IBAN or number (default: first account)')
   .option('--from <date>', 'Start date (YYYY-MM-DD)')
   .option('--to <date>', 'End date (YYYY-MM-DD)')
   .action(async (opts) => {
