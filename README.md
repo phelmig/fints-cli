@@ -73,7 +73,7 @@ fints-cli transfer --recipient "Max Mustermann" --iban DE89370400440532013000 --
 
 Options:
 - `--recipient` — recipient name (required)
-- `--iban` — recipient IBAN (required)
+- `--iban` — recipient IBAN, any SEPA country (required)
 - `--amount` — amount in EUR (required)
 - `--bic` — recipient BIC (optional, resolved by bank)
 - `--purpose` — payment reference (optional)
