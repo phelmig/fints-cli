@@ -1,5 +1,6 @@
 #!/usr/bin/env node
 
+import { createRequire } from 'node:module';
 import { Command } from 'commander';
 import { executeTransfer } from './transfer.js';
 import { listAccounts } from './accounts.js';
@@ -9,12 +10,15 @@ import { loadConfig, initConfig } from './config.js';
 
 loadConfig();
 
+// Compiled to dist/src/index.js, so package.json is two levels up.
+const { version } = createRequire(import.meta.url)('../../package.json') as { version: string };
+
 const program = new Command();
 
 program
   .name('fints-cli')
   .description('FinTS 3.0 banking CLI')
-  .version('1.1.0');
+  .version(version);
 
 function getBankOptions(): BankOptions {
   const blz = process.env.FVB_BLZ;
